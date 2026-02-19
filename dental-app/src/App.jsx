@@ -1,5 +1,7 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 import api from './api/client';
+import BookingForm from './components/BookingForm';
+import AppointmentHistory from './components/AppointmentHistory';
 
 // ═══════════════════════════════════════════════════════════
 // COLORS & STYLES
@@ -197,6 +199,17 @@ function DoctorScreen(){
   const [notifications,setNotifications]=useState([]);
   const [loading,setLoading]=useState(true);
   const {user,logout}=useContext(AuthContext);
+  const handleConfirm=async(id)=>{
+  try{
+    await api.patch(`/appointments/${id}/status`,{status:'CONFIRMED'});
+    // Reload appointments
+    const res=await api.get('/appointments');
+    setAppointments(res.data);
+    alert('✅ Appointment dikonfirmasi');
+  }catch(err){
+    alert('❌ Gagal konfirmasi: '+err.response?.data?.error);
+  }
+};
 
   useEffect(()=>{
     Promise.all([
@@ -342,6 +355,24 @@ function DoctorScreen(){
           </>
         )}
       </div>
+      // In DoctorScreen, update the appointment row:
+
+        {appointments.slice(0,5).map((apt,i)=>(
+          <div key={apt.id} style={S.row()}>
+            <div style={{width:36,height:36,borderRadius:10,background:[C.mint,C.blue,C.gray,C.gray][i]+"22",color:[C.mint,C.blue,C.gray,C.gray][i],display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,fontWeight:800}}>{i+1}</div>
+            <div style={{flex:1}}>
+              <div style={{fontSize:14,fontWeight:700,color:C.navy}}>{apt.patient?.name||"Patient"}</div>
+              <div style={{fontSize:12,color:C.gray}}>{new Date(apt.date).toLocaleDateString()} · {apt.time}</div>
+            </div>
+            {apt.status==='PENDING'&&(
+              <button onClick={()=>handleConfirm(apt.id)} style={{...S.btn(C.mint,{width:"auto",padding:"6px 12px",fontSize:11,marginTop:0})}}>
+                Konfirmasi
+              </button>
+            )}
+            {apt.status==='CONFIRMED'&&<span style={S.badge(C.mint)}>Dikonfirmasi</span>}
+          </div>
+        ))}
+        
       <Navbar tabs={tabs} active={tab} setActive={setTab}/>
     </div>
   );
@@ -631,56 +662,33 @@ function PatientScreen(){
               </>
             )}
 
+            
+
             {tab==="booking"&&(
               <>
                 <div style={{...S.secTitle,marginTop:8}}>📅 Booking Online</div>
-                <div style={S.card()}>
-                  <div style={{fontSize:13,fontWeight:700,color:C.navy,marginBottom:10}}>Pilih Dokter</div>
-                  {[
-                    {name:"drg. Anisa Putri",spec:"Orthodonti",avail:"Senin–Jumat",rating:4.9,avatar:"👩‍⚕️"},
-                    {name:"drg. Reza Firmansyah",spec:"Bedah Mulut",avail:"Selasa–Sabtu",rating:4.8,avatar:"👨‍⚕️"}
-                  ].map(d=>(
-                    <div key={d.name} style={{display:"flex",gap:12,alignItems:"center",background:C.offwhite,borderRadius:14,padding:"10px 12px",marginBottom:8}}>
-                      <span style={{fontSize:26}}>{d.avatar}</span>
-                      <div>
-                        <div style={{fontSize:13,fontWeight:700,color:C.navy}}>{d.name}</div>
-                        <div style={{fontSize:11,color:C.gray}}>{d.spec} · {d.avail}</div>
-                        <div style={{fontSize:11,color:C.orange}}>⭐ {d.rating}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div style={S.card()}>
-                  <div style={{fontSize:13,fontWeight:700,color:C.navy,marginBottom:6}}>Pilih Waktu — 20 Feb 2025</div>
-                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginTop:8}}>
-                    {TIMES.map(t=>(
-                      <div key={t} onClick={()=>setSelTime(t)} style={{background:selTime===t?C.mint:C.white,color:selTime===t?C.white:C.navy,border:`1.5px solid ${selTime===t?C.mint:C.grayLight}`,borderRadius:10,padding:"8px 0",fontSize:12,fontWeight:600,cursor:"pointer",textAlign:"center"}}>{t}</div>
-                    ))}
-                  </div>
-                </div>
-                <button style={S.btn(C.mint)}>✅ Konfirmasi Booking</button>
+                <BookingForm onSuccess={()=>{
+                  // Reload appointments after successful booking
+                  api.get('/appointments')
+                    .then(res=>setAppointments(res.data))
+                    .catch(console.error);
+                }}/>
               </>
             )}
 
             {tab==="riwayat"&&(
-              <>
-                <div style={{...S.secTitle,marginTop:8}}>📋 Semua Riwayat</div>
-                {appointments.length===0?<div style={S.card()}>Tidak ada riwayat</div>:
-                  appointments.map(apt=>(
-                    <div key={apt.id} style={S.card({marginBottom:8})}>
-                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-                        <div>
-                          <div style={{fontSize:13,fontWeight:700,color:C.navy}}>{apt.treatment||"Konsultasi"}</div>
-                          <div style={{fontSize:12,color:C.gray,marginTop:2}}>{new Date(apt.date).toLocaleDateString()} · {apt.doctor?.name||"Dokter"}</div>
-                        </div>
-                        <div style={{fontSize:13,fontWeight:700,color:C.mint}}>—</div>
-                      </div>
-                      <span style={{...S.badge(C.mint),display:"inline-block",marginTop:6}}>✓ Selesai</span>
-                    </div>
-                  ))
-                }
-              </>
-            )}
+  <>
+    <div style={{...S.secTitle,marginTop:8}}>📋 Riwayat Appointment</div>
+    <AppointmentHistory 
+      appointments={appointments} 
+      onUpdate={()=>{
+        api.get('/appointments')
+          .then(res=>setAppointments(res.data))
+          .catch(console.error);
+      }}
+    />
+  </>
+)}
 
             {tab==="edukasi"&&(
               <>
