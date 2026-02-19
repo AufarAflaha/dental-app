@@ -9,6 +9,7 @@ import medicineRoutes from './routes/medicines.js';
 import photoRoutes from './routes/photos.js';
 import notificationRoutes from './routes/notifications.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import invoiceRoutes from './routes/invoices.js';
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.use('/api/medical', medicalRoutes);
 app.use('/api/medicines', medicineRoutes);
 app.use('/api/photos', photoRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/invoices', invoiceRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

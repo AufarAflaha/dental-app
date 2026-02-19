@@ -4,6 +4,7 @@ import BookingForm from './components/BookingForm';
 import AppointmentHistory from './components/AppointmentHistory';
 import OdontogramEditor from './components/OdontogramEditor';
 import PatientManagement from './components/PatientManagement';
+import InvoiceManagement from './components/InvoiceManagement';
 
 // ═══════════════════════════════════════════════════════════
 // COLORS & STYLES
@@ -416,36 +417,11 @@ function AdminScreen(){
         {loading?<div style={S.card()}>Loading...</div>:(
           <>
             {tab==="dashboard"&&(
-              <>
-                <div style={S.secTitle}>⚡ Antrian Aktif</div>
-                {appointments.length===0?<div style={S.card()}>Tidak ada antrian</div>:
-                  appointments.slice(0,4).map((apt,i)=>(
-                    <div key={apt.id} style={S.row()}>
-                      <div style={{width:36,height:36,borderRadius:10,background:[C.mint,C.blue,C.gray,C.gray][i]+"22",color:[C.mint,C.blue,C.gray,C.gray][i],display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,fontWeight:800}}>{i+1}</div>
-                      <div style={{flex:1}}>
-                        <div style={{fontSize:14,fontWeight:700,color:C.navy}}>{apt.patient?.name||"Patient"}</div>
-                        <div style={{fontSize:12,color:C.gray}}>{new Date(apt.date).toLocaleDateString()} · {apt.time}</div>
-                      </div>
-                      <span style={S.badge([C.mint,C.blue,C.gray,C.gray][i])}>{["Sedang","Menunggu","Menunggu","Menunggu"][i]}</span>
-                    </div>
-                  ))
-                }
-                <div style={S.secTitle}>💰 Invoice Terbaru</div>
-                <div style={S.card()}>
-                  <div style={{fontSize:13,fontWeight:700,color:C.navy,marginBottom:8}}>Budi Santoso — INV-2025-0312</div>
-                  {[["Tambal Gigi","Rp 350.000"],["Konsultasi","Rp 75.000"],["Rontgen","Rp 120.000"]].map(([l,v])=>(
-                    <div key={l} style={{display:"flex",justifyContent:"space-between",fontSize:13,padding:"7px 0",borderBottom:`1px solid ${C.grayLight}`}}>
-                      <span style={{color:C.gray}}>{l}</span><span style={{fontWeight:700,color:C.navy}}>{v}</span>
-                    </div>
-                  ))}
-                  <div style={{display:"flex",justifyContent:"space-between",fontSize:14,paddingTop:9}}>
-                    <span style={{fontWeight:700,color:C.navy}}>TOTAL</span>
-                    <span style={{fontWeight:800,color:C.mint,fontSize:15}}>Rp 545.000</span>
-                  </div>
-                  <button style={S.btn(C.mint)}>🖨️ Cetak Invoice</button>
-                </div>
-              </>
-            )}
+  <>
+    <div style={S.secTitle}>💰 Invoice Management</div>
+    <InvoiceManagement/>
+  </>
+)}
 
                         {tab==="pasien"&&(
               <>
