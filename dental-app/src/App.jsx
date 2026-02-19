@@ -3,6 +3,7 @@ import api from './api/client';
 import BookingForm from './components/BookingForm';
 import AppointmentHistory from './components/AppointmentHistory';
 import OdontogramEditor from './components/OdontogramEditor';
+import PatientManagement from './components/PatientManagement';
 
 // ═══════════════════════════════════════════════════════════
 // COLORS & STYLES
@@ -446,24 +447,10 @@ function AdminScreen(){
               </>
             )}
 
-            {tab==="pasien"&&(
+                        {tab==="pasien"&&(
               <>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:8,marginBottom:10}}>
-                  <div style={{...S.secTitle,margin:0}}>👥 Manajemen Pasien</div>
-                  <button style={{background:C.purple,color:C.white,border:"none",borderRadius:10,padding:"6px 14px",fontSize:12,fontWeight:700,cursor:"pointer"}}>+ Tambah</button>
-                </div>
-                {patients.length===0?<div style={S.card()}>Tidak ada data pasien</div>:
-                  patients.map(p=>(
-                    <div key={p.id} style={S.row()}>
-                      <div style={{width:38,height:38,borderRadius:"50%",background:C.blue+"22",display:"flex",alignItems:"center",justifyContent:"center",fontSize:17}}>👤</div>
-                      <div style={{flex:1}}>
-                        <div style={{fontSize:14,fontWeight:700,color:C.navy}}>{p.name}</div>
-                        <div style={{fontSize:12,color:C.gray}}>{p.email}</div>
-                      </div>
-                      <span style={S.badge(C.mint)}>Aktif</span>
-                    </div>
-                  ))
-                }
+                <div style={{...S.secTitle,marginTop:8}}>👥 Manajemen Pasien</div>
+                <PatientManagement/>
               </>
             )}
 
