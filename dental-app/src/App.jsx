@@ -5,6 +5,7 @@ import AppointmentHistory from './components/AppointmentHistory';
 import OdontogramEditor from './components/OdontogramEditor';
 import PatientManagement from './components/PatientManagement';
 import InvoiceManagement from './components/InvoiceManagement';
+import NotificationScreen from './components/NotificationScreen';
 
 // ═══════════════════════════════════════════════════════════
 // COLORS & STYLES
@@ -101,7 +102,7 @@ function BellBtn({count,onClick}){
   return(
     <div style={{position:"relative",cursor:"pointer"}} onClick={onClick}>
       <span style={{fontSize:24}}>🔔</span>
-      {count>0&&<span style={{position:"absolute",top:-4,right:-4,background:C.red,color:C.white,borderRadius:"50%",width:16,height:16,fontSize:9,fontWeight:800,display:"flex",alignItems:"center",justifyContent:"center"}}>{count}</span>}
+      {count>0&&<span style={{position:"absolute",top:-4,right:-4,background:C.red,color:C.white,borderRadius:"50%",width:18,height:18,fontSize:9,fontWeight:800,display:"flex",alignItems:"center",justifyContent:"center"}}>{count}</span>}
     </div>
   );
 }
@@ -197,22 +198,12 @@ const TOOTH_DN=[{n:"48",s:"ok"},{n:"47",s:"filling"},{n:"46",s:"ok"},{n:"45",s:"
 
 function DoctorScreen(){
   const [tab,setTab]=useState("beranda");
+  const [showNotif,setShowNotif]=useState(false);
   const [appointments,setAppointments]=useState([]);
   const [patients,setPatients]=useState([]);
   const [notifications,setNotifications]=useState([]);
   const [loading,setLoading]=useState(true);
   const {user,logout}=useContext(AuthContext);
-  const handleConfirm=async(id)=>{
-  try{
-    await api.patch(`/appointments/${id}/status`,{status:'CONFIRMED'});
-    // Reload appointments
-    const res=await api.get('/appointments');
-    setAppointments(res.data);
-    alert('✅ Appointment dikonfirmasi');
-  }catch(err){
-    alert('❌ Gagal konfirmasi: '+err.response?.data?.error);
-  }
-};
 
   useEffect(()=>{
     Promise.all([
@@ -226,6 +217,17 @@ function DoctorScreen(){
     }).finally(()=>setLoading(false));
   },[]);
 
+  const handleConfirm=async(id)=>{
+    try{
+      await api.patch(`/appointments/${id}/status`,{status:'CONFIRMED'});
+      const res=await api.get('/appointments');
+      setAppointments(res.data);
+      alert('✅ Appointment dikonfirmasi');
+    }catch(err){
+      alert('❌ Gagal konfirmasi: '+err.response?.data?.error);
+    }
+  };
+
   const tabs=[
     {key:"beranda",icon:"🏠",label:"Beranda"},
     {key:"odonto",icon:"🦷",label:"Odonto"},
@@ -235,6 +237,8 @@ function DoctorScreen(){
 
   const unreadCount=notifications.filter(n=>!n.isRead).length;
 
+  if(showNotif) return <NotificationScreen onBack={()=>setShowNotif(false)}/>;
+
   return(
     <div style={S.screen}>
       <div style={S.header()}>
@@ -242,7 +246,7 @@ function DoctorScreen(){
           <div><div style={S.greeting}>Selamat pagi 👋</div><div style={S.userName}>{user.name}</div></div>
           <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:6}}>
             <div style={{display:"flex",gap:8,alignItems:"center"}}>
-              <BellBtn count={unreadCount} onClick={()=>alert('Fitur notifikasi')}/>
+              <BellBtn count={unreadCount} onClick={()=>setShowNotif(true)}/>
               <div style={S.avatarCircle()}>👩‍⚕️</div>
             </div>
             <div style={S.roleTag()}>DOKTER</div>
@@ -269,7 +273,12 @@ function DoctorScreen(){
                         <div style={{fontSize:14,fontWeight:700,color:C.navy}}>{apt.patient?.name||"Patient"}</div>
                         <div style={{fontSize:12,color:C.gray}}>{new Date(apt.date).toLocaleDateString()} · {apt.time}</div>
                       </div>
-                      {i===0&&<span style={S.badge(C.mint)}>Aktif</span>}
+                      {apt.status==='PENDING'&&(
+                        <button onClick={()=>handleConfirm(apt.id)} style={{...S.btn(C.mint,{width:"auto",padding:"6px 12px",fontSize:11,marginTop:0})}}>
+                          Konfirmasi
+                        </button>
+                      )}
+                      {apt.status==='CONFIRMED'&&<span style={S.badge(C.mint)}>Dikonfirmasi</span>}
                     </div>
                   ))
                 }
@@ -287,12 +296,10 @@ function DoctorScreen(){
               </>
             )}
 
-                        {tab==="odonto"&&(
+            {tab==="odonto"&&(
               <>
                 <div style={S.secTitle}>🦷 Odontogram Editor</div>
-                <OdontogramEditor onSave={()=>{
-                  alert('Odontogram saved successfully!');
-                }}/>
+                <OdontogramEditor onSave={()=>alert('Odontogram saved successfully!')}/>
               </>
             )}
 
@@ -334,24 +341,6 @@ function DoctorScreen(){
           </>
         )}
       </div>
-      // In DoctorScreen, update the appointment row:
-
-        {appointments.slice(0,5).map((apt,i)=>(
-          <div key={apt.id} style={S.row()}>
-            <div style={{width:36,height:36,borderRadius:10,background:[C.mint,C.blue,C.gray,C.gray][i]+"22",color:[C.mint,C.blue,C.gray,C.gray][i],display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,fontWeight:800}}>{i+1}</div>
-            <div style={{flex:1}}>
-              <div style={{fontSize:14,fontWeight:700,color:C.navy}}>{apt.patient?.name||"Patient"}</div>
-              <div style={{fontSize:12,color:C.gray}}>{new Date(apt.date).toLocaleDateString()} · {apt.time}</div>
-            </div>
-            {apt.status==='PENDING'&&(
-              <button onClick={()=>handleConfirm(apt.id)} style={{...S.btn(C.mint,{width:"auto",padding:"6px 12px",fontSize:11,marginTop:0})}}>
-                Konfirmasi
-              </button>
-            )}
-            {apt.status==='CONFIRMED'&&<span style={S.badge(C.mint)}>Dikonfirmasi</span>}
-          </div>
-        ))}
-        
       <Navbar tabs={tabs} active={tab} setActive={setTab}/>
     </div>
   );
@@ -362,6 +351,7 @@ function DoctorScreen(){
 // ═══════════════════════════════════════════════════════════
 function AdminScreen(){
   const [tab,setTab]=useState("dashboard");
+  const [showNotif,setShowNotif]=useState(false);
   const [appointments,setAppointments]=useState([]);
   const [patients,setPatients]=useState([]);
   const [medicines,setMedicines]=useState([]);
@@ -393,6 +383,8 @@ function AdminScreen(){
   const unreadCount=notifications.filter(n=>!n.isRead).length;
   const lowStock=medicines.filter(m=>m.stock<=m.minStock);
 
+  if(showNotif) return <NotificationScreen onBack={()=>setShowNotif(false)}/>;
+
   return(
     <div style={S.screen}>
       <div style={S.header(`linear-gradient(135deg,#1A0A2E,#2D1B4E)`)}>
@@ -400,7 +392,7 @@ function AdminScreen(){
           <div><div style={S.greeting}>Dashboard Admin ⚙️</div><div style={S.userName}>{user.name}</div></div>
           <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:6}}>
             <div style={{display:"flex",gap:8,alignItems:"center"}}>
-              <BellBtn count={unreadCount} onClick={()=>alert('Fitur notifikasi')}/>
+              <BellBtn count={unreadCount} onClick={()=>setShowNotif(true)}/>
               <div style={S.avatarCircle(`linear-gradient(135deg,${C.purple},${C.mint})`)}>👩‍💼</div>
             </div>
             <div style={S.roleTag(C.purple)}>ADMIN</div>
@@ -417,13 +409,13 @@ function AdminScreen(){
         {loading?<div style={S.card()}>Loading...</div>:(
           <>
             {tab==="dashboard"&&(
-  <>
-    <div style={S.secTitle}>💰 Invoice Management</div>
-    <InvoiceManagement/>
-  </>
-)}
+              <>
+                <div style={S.secTitle}>💰 Invoice Management</div>
+                <InvoiceManagement/>
+              </>
+            )}
 
-                        {tab==="pasien"&&(
+            {tab==="pasien"&&(
               <>
                 <div style={{...S.secTitle,marginTop:8}}>👥 Manajemen Pasien</div>
                 <PatientManagement/>
@@ -512,13 +504,12 @@ const TIPS=[
   {emoji:"💧",title:"Hindari Minuman Manis",text:"Batasi soda & minuman berenergi yang merusak enamel."},
   {emoji:"🦷",title:"Kontrol 6 Bulan",text:"Kunjungi dokter tiap 6 bulan untuk cek & scaling rutin."},
 ];
-const TIMES=["08:00","08:30","09:00","09:30","10:00","10:30","11:00","13:00","13:30","14:00"];
 
 function PatientScreen(){
   const [tab,setTab]=useState("beranda");
+  const [showNotif,setShowNotif]=useState(false);
   const [appointments,setAppointments]=useState([]);
   const [notifications,setNotifications]=useState([]);
-  const [selTime,setSelTime]=useState("09:00");
   const [loading,setLoading]=useState(true);
   const {user,logout}=useContext(AuthContext);
 
@@ -541,6 +532,8 @@ function PatientScreen(){
 
   const unreadCount=notifications.filter(n=>!n.isRead).length;
 
+  if(showNotif) return <NotificationScreen onBack={()=>setShowNotif(false)}/>;
+
   return(
     <div style={S.screen}>
       <div style={S.header(`linear-gradient(135deg,#003D2B,#005C40)`)}>
@@ -548,7 +541,7 @@ function PatientScreen(){
           <div><div style={S.greeting}>Halo 😊</div><div style={S.userName}>{user.name}</div></div>
           <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:6}}>
             <div style={{display:"flex",gap:8,alignItems:"center"}}>
-              <BellBtn count={unreadCount} onClick={()=>alert('Fitur notifikasi')}/>
+              <BellBtn count={unreadCount} onClick={()=>setShowNotif(true)}/>
               <div style={S.avatarCircle(`linear-gradient(135deg,${C.mint},${C.yellow})`)}>👨</div>
             </div>
             <div style={S.roleTag(C.mintDark)}>PASIEN</div>
@@ -602,13 +595,10 @@ function PatientScreen(){
               </>
             )}
 
-            
-
             {tab==="booking"&&(
               <>
                 <div style={{...S.secTitle,marginTop:8}}>📅 Booking Online</div>
                 <BookingForm onSuccess={()=>{
-                  // Reload appointments after successful booking
                   api.get('/appointments')
                     .then(res=>setAppointments(res.data))
                     .catch(console.error);
@@ -617,18 +607,18 @@ function PatientScreen(){
             )}
 
             {tab==="riwayat"&&(
-  <>
-    <div style={{...S.secTitle,marginTop:8}}>📋 Riwayat Appointment</div>
-    <AppointmentHistory 
-      appointments={appointments} 
-      onUpdate={()=>{
-        api.get('/appointments')
-          .then(res=>setAppointments(res.data))
-          .catch(console.error);
-      }}
-    />
-  </>
-)}
+              <>
+                <div style={{...S.secTitle,marginTop:8}}>📋 Riwayat Appointment</div>
+                <AppointmentHistory 
+                  appointments={appointments} 
+                  onUpdate={()=>{
+                    api.get('/appointments')
+                      .then(res=>setAppointments(res.data))
+                      .catch(console.error);
+                  }}
+                />
+              </>
+            )}
 
             {tab==="edukasi"&&(
               <>

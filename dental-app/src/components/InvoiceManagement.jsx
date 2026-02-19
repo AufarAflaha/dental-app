@@ -157,35 +157,42 @@ export default function InvoiceManagement() {
       )}
 
       {!loading&&invoices.map(inv=>(
-        <div key={inv.id} style={S.card}>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
-            <div style={{flex:1}}>
-              <div style={{fontSize:13,fontWeight:700,color:C.navy}}>{inv.invoiceNumber}</div>
-              <div style={{fontSize:12,color:C.gray,marginTop:2}}>
-                {inv.patient?.name} · {new Date(inv.createdAt).toLocaleDateString('id-ID')}
-              </div>
-            </div>
-            <span style={S.badge(inv.isPaid?C.mint:C.orange)}>
-              {inv.isPaid?'✓ Lunas':'Belum Bayar'}
-            </span>
-          </div>
-          
-          <div style={{fontSize:16,fontWeight:800,color:C.mint,marginTop:6}}>
-            Rp {inv.total.toLocaleString('id-ID')}
-          </div>
-
-          <div style={{display:"flex",gap:6,marginTop:8}}>
-            <button style={S.btn(C.blue,true)} onClick={()=>handlePrint(inv.id)}>
-              🖨️ Print
-            </button>
-            {!inv.isPaid&&(
-              <button style={S.btn(C.mint,true)} onClick={()=>handleMarkPaid(inv.id)}>
-                ✓ Tandai Lunas
-              </button>
-            )}
-          </div>
+  <div key={inv.id} style={S.card}>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
+      <div style={{flex:1}}>
+        <div style={{fontSize:13,fontWeight:700,color:C.navy}}>{inv.invoiceNumber}</div>
+        <div style={{fontSize:12,color:C.gray,marginTop:2}}>
+          {inv.patient?.name} · {new Date(inv.createdAt).toLocaleDateString('id-ID')}
         </div>
-      ))}
+      </div>
+      <span style={S.badge(inv.isPaid?C.mint:C.orange)}>
+        {inv.isPaid?'✓ Lunas':'💳 Belum Bayar'}
+      </span>
+    </div>
+    
+    <div style={{fontSize:16,fontWeight:800,color:C.mint,marginTop:6}}>
+      Rp {inv.total.toLocaleString('id-ID')}
+    </div>
+
+    {inv.isPaid&&inv.paidAt&&(
+      <div style={{fontSize:11,color:C.gray,marginTop:4}}>
+        Dibayar: {new Date(inv.paidAt).toLocaleDateString('id-ID')}
+      </div>
+    )}
+
+    <div style={{display:"flex",gap:6,marginTop:8}}>
+      <button style={S.btn(C.blue,true)} onClick={()=>handlePrint(inv.id)}>
+        🖨️ Print
+      </button>
+      {!inv.isPaid&&(
+        <button style={S.btn(C.mint,true)} onClick={()=>handleMarkPaid(inv.id)}>
+          ✓ Tandai Lunas
+        </button>
+      )}
+    </div>
+  </div>
+))}
+      
 
       {/* Create Invoice Modal */}
       {showCreateForm&&(
