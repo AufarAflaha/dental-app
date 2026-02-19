@@ -1,0 +1,191 @@
+// Database schema for DentalCare App
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  DOKTER
+  ADMIN
+  PASIEN
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+enum NotificationType {
+  REMINDER
+  BOOKING
+  PAYMENT
+  STOCK
+  GENERAL
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role
+  avatar    String?
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations based on role
+  doctorProfile DoctorProfile?
+  patientProfile PatientProfile?
+  appointments  Appointment[] @relation("PatientAppointments")
+  doctorAppointments Appointment[] @relation("DoctorAppointments")
+  notifications Notification[]
+  photos        Photo[]
+  
+  @@index([email])
+  @@index([role])
+}
+
+model DoctorProfile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  specialty   String
+  rating      Float    @default(0)
+  totalReviews Int     @default(0)
+  schedule    Json     // {monday: {start: "08:00", end: "14:00"}, ...}
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model PatientProfile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  birthDate   DateTime?
+  address     String?
+  allergies   String?  // JSON array string
+  medicalHistory Json? // Store patient medical records
+  lastVisit   DateTime?
+  nextVisit   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  medicalRecords MedicalRecord[]
+}
+
+model Appointment {
+  id          String   @id @default(cuid())
+  patientId   String
+  patient     User     @relation("PatientAppointments", fields: [patientId], references: [id])
+  doctorId    String
+  doctor      User     @relation("DoctorAppointments", fields: [doctorId], references: [id])
+  date        DateTime
+  time        String   // "09:00"
+  status      AppointmentStatus @default(PENDING)
+  notes       String?
+  treatment   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([patientId])
+  @@index([doctorId])
+  @@index([date])
+}
+
+model MedicalRecord {
+  id          String   @id @default(cuid())
+  patientId   String
+  patient     PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  visitDate   DateTime @default(now())
+  diagnosis   String
+  treatment   String
+  notes       String?
+  cost        Float?
+  odontogram  Json?    // Store tooth data
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([patientId])
+  @@index([visitDate])
+}
+
+model Photo {
+  id          String   @id @default(cuid())
+  patientId   String
+  patient     User     @relation(fields: [patientId], references: [id])
+  treatment   String
+  beforePhoto String   // URL or file path
+  afterPhoto  String   // URL or file path
+  notes       String?
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now())
+  
+  @@index([patientId])
+}
+
+model Medicine {
+  id          String   @id @default(cuid())
+  name        String
+  category    String
+  stock       Int
+  minStock    Int
+  unit        String
+  expiryDate  DateTime
+  price       Float?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  stockHistory StockHistory[]
+  
+  @@index([stock])
+  @@index([expiryDate])
+}
+
+model StockHistory {
+  id          String   @id @default(cuid())
+  medicineId  String
+  medicine    Medicine @relation(fields: [medicineId], references: [id])
+  change      Int      // +10 (addition) or -5 (usage)
+  reason      String   // "Purchase", "Used for patient", "Expired"
+  performedBy String?  // User ID
+  createdAt   DateTime @default(now())
+  
+  @@index([medicineId])
+}
+
+model Notification {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        NotificationType
+  title       String
+  message     String
+  isRead      Boolean  @default(false)
+  metadata    Json?    // Extra data (appointment ID, etc)
+  createdAt   DateTime @default(now())
+  
+  @@index([userId, isRead])
+  @@index([createdAt])
+}
+
+model Invoice {
+  id          String   @id @default(cuid())
+  patientId   String
+  invoiceNumber String @unique
+  items       Json     // [{name: "Tambal Gigi", price: 350000}, ...]
+  total       Float
+  isPaid      Boolean  @default(false)
+  paidAt      DateTime?
+  createdAt   DateTime @default(now())
+  
+  @@index([patientId])
+  @@index([isPaid])
+}
