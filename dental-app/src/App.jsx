@@ -2,6 +2,7 @@ import { useState, useEffect, createContext, useContext } from 'react';
 import api from './api/client';
 import BookingForm from './components/BookingForm';
 import AppointmentHistory from './components/AppointmentHistory';
+import OdontogramEditor from './components/OdontogramEditor';
 
 // ═══════════════════════════════════════════════════════════
 // COLORS & STYLES
@@ -284,36 +285,12 @@ function DoctorScreen(){
               </>
             )}
 
-            {tab==="odonto"&&(
+                        {tab==="odonto"&&(
               <>
-                <div style={S.secTitle}>🦷 Odontogram — Budi Santoso</div>
-                <div style={{background:C.navyMid,borderRadius:16,padding:14,marginBottom:12}}>
-                  <div style={{fontSize:10,color:C.gray,marginBottom:8,textAlign:"center"}}>← KANAN | ATAS | KIRI →</div>
-                  <div style={{display:"flex",justifyContent:"center",gap:3,marginBottom:5}}>{TOOTH_UP.map(t=><ToothBox key={t.n} t={t}/>)}</div>
-                  <div style={{borderTop:"1px dashed rgba(255,255,255,0.15)",margin:"5px 0"}}/>
-                  <div style={{display:"flex",justifyContent:"center",gap:3}}>{TOOTH_DN.map(t=><ToothBox key={t.n} t={t}/>)}</div>
-                  <div style={{fontSize:10,color:C.gray,marginTop:4,textAlign:"center"}}>← KANAN | BAWAH | KIRI →</div>
-                  <div style={{display:"flex",gap:8,flexWrap:"wrap",marginTop:10}}>
-                    {[["Normal","#1E3A5F"],["Tambal",C.yellow],["Crown",C.blue],["Cabut",C.red],["Scaling",C.orange]].map(([l,col])=>(
-                      <div key={l} style={{display:"flex",alignItems:"center",gap:4,fontSize:10,color:C.gray}}>
-                        <div style={{width:9,height:9,borderRadius:3,background:col}}/>{l}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div style={S.secTitle}>📝 Catatan Diagnosa</div>
-                <div style={S.card()}>
-                  <div style={{fontSize:12,color:C.gray,marginBottom:4}}>Kunjungan: 3 Feb 2025</div>
-                  <div style={{fontSize:13,color:C.navy,lineHeight:1.7}}>
-                    • Gigi 16: Crown lama → ganti 3-6 bulan<br/>
-                    • Gigi 12: Tumpatan komposit, baik<br/>
-                    • Gigi 24: Post-ekstraksi 2023<br/>
-                    • Gigi 26: Perlu scaling<br/>
-                    <span style={{color:C.red,fontWeight:700}}>⚠️ Alergi: Penisilin</span>
-                  </div>
-                  <div style={S.divider}/>
-                  <div style={{fontSize:12,color:C.gray}}>Estimasi kontrol: <b style={{color:C.navy}}>20 Feb 2025 — Scaling</b></div>
-                </div>
+                <div style={S.secTitle}>🦷 Odontogram Editor</div>
+                <OdontogramEditor onSave={()=>{
+                  alert('Odontogram saved successfully!');
+                }}/>
               </>
             )}
 
