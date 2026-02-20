@@ -702,18 +702,16 @@ Contributions are welcome! Please follow these steps:
 
 ---
 
-## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
 ## 📞 Contact & Support
 
-**Project Maintainer:** Your Name
-- Email: your.email@example.com
-- GitHub: [@yourusername](https://github.com/yourusername)
-- LinkedIn: [Your Name](https://linkedin.com/in/yourprofile)
+**Project Maintainer:** Aufar Akyas Aflaha
+- Email: aflahasamsung@gmail.com
+- GitHub: [@AufarAflaha](https://github.com/AufarAflaha)
+- LinkedIn: [Aufar Akyas Aflaha](https://www.linkedin.com/in/aufar-akyas-aflaha-9b6633262/)
 
 **Project Link:** [https://github.com/yourusername/dental-app](https://github.com/yourusername/dental-app)
 
@@ -743,6 +741,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Built with ❤️ for dental professionals**
 
-[Report Bug](https://github.com/yourusername/dental-app/issues) · [Request Feature](https://github.com/yourusername/dental-app/issues) · [Documentation](https://github.com/yourusername/dental-app/wiki)
+[Report Bug](https://github.com/yourusername/dental-app/issues) · [Request Feature](https://github.com/yourusername/dental-app/issues) · 
 
 </div>
