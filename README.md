@@ -730,10 +730,10 @@ Contributions are welcome! Please follow these steps:
 
 ## 📊 Project Stats
 
-![GitHub stars](https://img.shields.io/github/stars/yourusername/dental-app?style=social)
-![GitHub forks](https://img.shields.io/github/forks/yourusername/dental-app?style=social)
-![GitHub issues](https://img.shields.io/github/issues/yourusername/dental-app)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/yourusername/dental-app)
+![GitHub stars](https://img.shields.io/github/stars/AufarAflaha/dental-app?style=social)
+![GitHub forks](https://img.shields.io/github/forks/AufarAflaha/dental-app?style=social)
+![GitHub issues](https://img.shields.io/github/issues/AufarAflaha/dental-app)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/AufarAflaha/dental-app)
 
 ---
 
