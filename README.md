@@ -713,7 +713,7 @@ Contributions are welcome! Please follow these steps:
 - GitHub: [@AufarAflaha](https://github.com/AufarAflaha)
 - LinkedIn: [Aufar Akyas Aflaha](https://www.linkedin.com/in/aufar-akyas-aflaha-9b6633262/)
 
-**Project Link:** [https://github.com/yourusername/dental-app](https://github.com/yourusername/dental-app)
+**Project Link:** [https://github.com/AufarAflaha/dental-app.git](https://github.com/AufarAflaha/dental-app.git)
 
 ---
 
