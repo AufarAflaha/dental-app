@@ -739,8 +739,8 @@ Contributions are welcome! Please follow these steps:
 
 <div align="center">
 
-**Built with ❤️ for dental professionals**
+**Built with ❤️ for dental professionals(my loml)**
 
-[Report Bug](https://github.com/yourusername/dental-app/issues) · [Request Feature](https://github.com/yourusername/dental-app/issues) · 
+[Report Bug](https://github.com/AufarAflaha/dental-app.git) · [Request Feature]https://github.com/AufarAflaha/dental-app.git) · 
 
 </div>
