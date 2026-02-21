@@ -98,6 +98,63 @@ router.post('/patients', authenticate, authorize('ADMIN'), async (req, res, next
       include: { patientProfile: true }
     });
 
+
+    // Remove password from response
+    const { password: _, ...userWithoutPassword } = user;
+    res.status(201).json(userWithoutPassword);
+  } catch (error) {
+    next(error);
+  }
+});
+// Create new doctor (ADMIN only)
+router.post('/doctors', authenticate, authorize('ADMIN'), async (req, res, next) => {
+  try {
+    const { email, password, name, phone, specialty, schedule } = req.body;
+
+    // Validation
+    if (!email || !password || !name || !specialty) {
+      return res.status(400).json({ error: 'Email, password, name, and specialty are required' });
+    }
+
+    // Check if email already exists
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      return res.status(409).json({ error: 'Email already registered' });
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Default schedule if not provided
+    const defaultSchedule = schedule || {
+      monday: { start: '08:00', end: '14:00' },
+      tuesday: { start: '08:00', end: '14:00' },
+      wednesday: { start: '08:00', end: '14:00' },
+      thursday: { start: '08:00', end: '14:00' },
+      friday: { start: '08:00', end: '14:00' }
+    };
+
+    // Create user + doctor profile
+    const user = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        name,
+        phone,
+        role: 'DOKTER',
+        avatar: '👨‍⚕️',
+        doctorProfile: {
+          create: {
+            specialty,
+            rating: 0,
+            totalReviews: 0,
+            schedule: defaultSchedule
+          }
+        }
+      },
+      include: { doctorProfile: true }
+    });
+
     // Remove password from response
     const { password: _, ...userWithoutPassword } = user;
     res.status(201).json(userWithoutPassword);
